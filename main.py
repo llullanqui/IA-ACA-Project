@@ -2,10 +2,10 @@ import keras
 import numpy
 import random
 import tkinter
-from tkinter import ttk
+from tkinter import ttk,messagebox
 from functools import partial
 
-datasetFilePath = "updatedDataset.csv"
+datasetFilePath = "UpdatedDataset.csv"
 modelFilePath = "edificationEvaluationModel.hdf5"
 currentResult = ""
 
@@ -37,6 +37,12 @@ result = {
 	"INSEGURO":0,
 	"INSPECCIONADO":2
 }
+
+def trainingMatrixIncrement(x,y):
+	for key in edificationType:
+		for i in range(0,1000):
+			x.append([edificationType[key],0,0,0,0,0,0,0,0])
+			y.append([0,0,1])
 
 #Reads the data 
 def loadDatasetEqualParts(filename):
@@ -79,6 +85,8 @@ def loadDatasetEqualParts(filename):
 				x_test.append(vectorX)
 				y_test.append(vectorY)
 	
+
+	trainingMatrixIncrement(x_train,y_train)
 	return (numpy.array(x_train,dtype=float),numpy.array(y_train,dtype=float)),(numpy.array(x_test,dtype=float),numpy.array(y_test,dtype=float))
 
 def loadDatasetNotEqualParts(filename):
@@ -113,6 +121,9 @@ def loadDatasetNotEqualParts(filename):
 def trainModel():
 	#We load the data
 	(x_train,y_train),(x_test,y_test) = loadDatasetEqualParts(datasetFilePath)
+	print(x_train[:20])
+	print(y_train[:20])
+	
 	###(x_train,y_train),(x_test,y_test) = loadDatasetNotEqualParts(datasetFilePath)
 
 	# Model building
@@ -144,111 +155,116 @@ def trainModel():
 	accuracy = 100*score[1]
 	print('Precisión del modelo: %.4f%%' % accuracy)
 
-def dataInputWindow():
-	window = tkinter.Tk()
-	window.title("Evaluar edificación")
+class gui:
+	def __init__(self, window):
+		self.window = window
+		window.title = "Evaluar edificación";
 
-	variableMaterial = tkinter.StringVar()
-	labelMaterial = tkinter.Label(window, text="Tipo de material: ")
-	labelMaterial.grid(column=0,row=0)
-	comboMaterial = ttk.Combobox(window, textvariable=variableMaterial, values = (
-		"Hormigón",
-		"Mixta",
-		"Madera",
-		"Muro",
-		"Restos",
-		"Metalica",
-		"Modpre",
-		"Estructural"))
-	comboMaterial.current(0)
-	comboMaterial.grid(column=1,row=0)
+		self.labelMaterial = tkinter.Label(window, text="Tipo de material: ")
+		self.labelMaterial.grid(column=0,row=0)
+		self.comboMaterial = ttk.Combobox(window, state="readonly", exportselection=True, values = (
+			"Hormigón",
+			"Mixta",
+			"Madera",
+			"Muro",
+			"Restos",
+			"Metalica",
+			"Modpre",
+			"Estructural"))
+		self.comboMaterial.current(0)
+		self.comboMaterial.bind("<<ComboboxSelected>>")
+		self.comboMaterial.grid(column=1,row=0)
 
-	labelColapsoTotal = tkinter.Label(window, text="Colapso total: ")
-	labelColapsoTotal.grid(column=0,row=1)
-	comboColapsoTotal = ttk.Combobox(window,values = [
-		"No",
-		"Sí"])
-	comboColapsoTotal.current(0)
-	comboColapsoTotal.grid(column=1,row=1)
+		self.labelColapsoTotal = tkinter.Label(window, text="Colapso total: ")
+		self.labelColapsoTotal.grid(column=0,row=1)
+		self.comboColapsoTotal = ttk.Combobox(window,values = [
+			"No",
+			"Sí"])
+		self.comboColapsoTotal.current(0)
+		self.comboColapsoTotal.grid(column=1,row=1)
 
-	labelColapsoParcial = tkinter.Label(window, text="Colapso parcial: ")
-	labelColapsoParcial.grid(column=0,row=2)
-	comboColapsoParcial = ttk.Combobox(window,values = [
-		"No",
-		"Sí"])
-	comboColapsoParcial.current(0)
-	comboColapsoParcial.grid(column=1,row=2)
+		self.labelColapsoParcial = tkinter.Label(window, text="Colapso parcial: ")
+		self.labelColapsoParcial.grid(column=0,row=2)
+		self.comboColapsoParcial = ttk.Combobox(window,values = [
+			"No",
+			"Sí"])
+		self.comboColapsoParcial.current(0)
+		self.comboColapsoParcial.grid(column=1,row=2)
 
-	labelCimentacionAfectada = tkinter.Label(window, text="¿Cimentación afectada?: ")
-	labelCimentacionAfectada.grid(column=0,row=3)
-	comboCimentacionAfectada = ttk.Combobox(window,values = [
-		"No",
-		"Sí"])
-	comboCimentacionAfectada.current(0)
-	comboCimentacionAfectada.grid(column=1,row=3)
+		self.labelCimentacionAfectada = tkinter.Label(window, text="¿Cimentación afectada?: ")
+		self.labelCimentacionAfectada.grid(column=0,row=3)
+		self.comboCimentacionAfectada = ttk.Combobox(window,values = [
+			"No",
+			"Sí"])
+		self.comboCimentacionAfectada.current(0)
+		self.comboCimentacionAfectada.grid(column=1,row=3)
 
-	labelParam1 = tkinter.Label(window, text="FUERA_PLOM: ")
-	labelParam1.grid(column=0,row=4)
-	comboParam1 = ttk.Combobox(window,values = [
-		"Poco",
-		"Moderado",
-		"Severo"])
-	comboParam1.current(0)
-	comboParam1.grid(column=1,row=4)
+		self.labelParam1 = tkinter.Label(window, text="FUERA_PLOM: ")
+		self.labelParam1.grid(column=0,row=4)
+		self.comboParam1 = ttk.Combobox(window,values = [
+			"Poco",
+			"Moderado",
+			"Severo"])
+		self.comboParam1.current(0)
+		self.comboParam1.grid(column=1,row=4)
 
-	labelParam2 = tkinter.Label(window, text="AGR_MUROS: ")
-	labelParam2.grid(column=0,row=5)
-	comboParam2 = ttk.Combobox(window,values = [
-		"Poco",
-		"Moderado",
-		"Severo"])
-	comboParam2.current(0)
-	comboParam2.grid(column=1,row=5)
+		self.labelParam2 = tkinter.Label(window, text="AGR_MUROS: ")
+		self.labelParam2.grid(column=0,row=5)
+		self.comboParam2 = ttk.Combobox(window,values = [
+			"Poco",
+			"Moderado",
+			"Severo"])
+		self.comboParam2.current(0)
+		self.comboParam2.grid(column=1,row=5)
 
-	labelParam3 = tkinter.Label(window, text="AGR_MAMP: ")
-	labelParam3.grid(column=0,row=6)
-	comboParam3 = ttk.Combobox(window,values = [
-		"Poco",
-		"Moderado",
-		"Severo"])
-	comboParam3.current(0)
-	comboParam3.grid(column=1,row=6)
+		self.labelParam3 = tkinter.Label(window, text="AGR_MAMP: ")
+		self.labelParam3.grid(column=0,row=6)
+		self.comboParam3 = ttk.Combobox(window,values = [
+			"Poco",
+			"Moderado",
+			"Severo"])
+		self.comboParam3.current(0)
+		self.comboParam3.grid(column=1,row=6)
 
-	labelParam4 = tkinter.Label(window, text="DASOBCH: ")
-	labelParam4.grid(column=0,row=7)
-	comboParam4 = ttk.Combobox(window,values = [
-		"Poco",
-		"Moderado",
-		"Severo"])
-	comboParam4.current(0)
-	comboParam4.grid(column=1,row=7)
+		self.labelParam4 = tkinter.Label(window, text="DASOBCH: ")
+		self.labelParam4.grid(column=0,row=7)
+		self.comboParam4 = ttk.Combobox(window,values = [
+			"Poco",
+			"Moderado",
+			"Severo"])
+		self.comboParam4.current(0)
+		self.comboParam4.grid(column=1,row=7)
 
-	labelParam5 = tkinter.Label(window, text="OTROS: ")
-	labelParam5.grid(column=0,row=8)
-	comboParam5 = ttk.Combobox(window,values = [
-		"Poco",
-		"Moderado",
-		"Severo"])
-	comboParam5.current(0)
-	comboParam5.grid(column=1,row=8)
+		self.labelParam5 = tkinter.Label(window, text="OTROS: ")
+		self.labelParam5.grid(column=0,row=8)
+		self.comboParam5 = ttk.Combobox(window,values = [
+			"Poco",
+			"Moderado",
+			"Severo"])
+		self.comboParam5.current(0)
+		self.comboParam5.grid(column=1,row=8)
 
-	calculate = tkinter.Button(window, text="Calcular estado",command=partial(predictResult,
-		comboMaterial.current(),
-		comboColapsoTotal.current(),
-		comboColapsoParcial.current(),
-		comboCimentacionAfectada.current(),
-		comboParam1.current(),
-		comboParam2.current(),
-		comboParam3.current(),
-		comboParam4.current(),
-		comboParam5.current()))
-	calculate.grid(column=0,row=9)
+		self.calculate = tkinter.Button(window, text="Calcular estado",command=self.predictResult)
+		self.calculate.grid(column=0,row=9)
 
-	window.mainloop()
+	def predictResult(self):
+		values = [self.comboMaterial.current()+1,
+				  self.comboColapsoTotal.current(),
+				  self.comboColapsoParcial.current(),
+				  self.comboCimentacionAfectada.current(),
+				  self.comboParam1.current(),
+				  self.comboParam2.current(),
+				  self.comboParam3.current(),
+				  self.comboParam4.current(),
+				  self.comboParam5.current()]
+		self.nestedPredictResult(values)
 
-def predictResult(x0,x1,x2,x3,x4,x5,x6,x7,x8):
-	print(x0,x1,x2,x3,x4,x5,x6,x7,x8)
-
+	def nestedPredictResult(self,values):
+		vector = numpy.array([values])
+		model = keras.models.load_model(modelFilePath)
+		result=model.predict(vector)
+		vectorLabels = numpy.array(["INSEGURO","USO RESTRINGIDO","INSPECCIONADO"])
+		messagebox.showinfo("Resultado",vectorLabels[numpy.argmax(result[0])])
 
 print("\nEvaluación de vivienda/edificación después de catástrofes.")
 menu = """\nEscoja una opción:
@@ -263,18 +279,11 @@ while option != "3":
 	if option == "1":
 		trainModel()
 	elif option == "2":
-		dataInputWindow()
+		#dataInputWindow()
+		window = tkinter.Tk()
+		my_gui = gui(window)
+		window.mainloop()
 	elif option == "3":
 		print("\n¡Por un Ecuador amazónico!\n¡Desde siempre, y hasta siempre!\n¡VIVA LA PATRIA!\n")
 	else:
 		print("Ingrese una opción correcta: 1, 2, o 3.")
-
-
-
-
-
-"""
-result=model.predict(x_test[int(len(x_test)*.75):])
-labels = (result > 0.5).astype(numpy.int)
-print(labels)
-"""

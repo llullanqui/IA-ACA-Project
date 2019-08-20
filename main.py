@@ -3,7 +3,6 @@ import numpy
 import random
 import tkinter
 from tkinter import ttk,messagebox
-from functools import partial
 
 datasetFilePath = "UpdatedDataset.csv"
 modelFilePath = "edificationEvaluationModel.hdf5"

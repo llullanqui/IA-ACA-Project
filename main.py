@@ -128,10 +128,10 @@ def trainModel():
 
 	# Model building
 	model = keras.models.Sequential()
-	model.add(keras.layers.Dense(81, activation='relu',input_dim=9,bias_initializer='ones'))
-	model.add(keras.layers.Dropout(0.2))
-	model.add(keras.layers.Dense(81, activation='relu'))
-	model.add(keras.layers.Dropout(0.2))
+	model.add(keras.layers.Dense(9, activation='relu',input_dim=9,bias_initializer='ones'))
+	model.add(keras.layers.Dropout(0.1))
+	model.add(keras.layers.Dense(9, activation='relu'))
+	model.add(keras.layers.Dropout(0.1))
 	model.add(keras.layers.Dense(3, activation='softmax'))
 
 	#model.summary() #Commented to avoid filling up the cmd screen
